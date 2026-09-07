@@ -8,38 +8,42 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&display=swap');
     body { font-family: 'M PLUS Rounded 1c', sans-serif; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="bg-slate-50 text-slate-800">
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    const DEFAULT_TEACHER_PASS = '0000';
+    // SVG Icons Components
+    const Icons = {
+      Lock: () => <svg className="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>,
+      UserCheck: () => <svg className="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
+      Sparkles: () => <svg className="w-4 h-4 inline-block text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>,
+      Award: () => <svg className="w-5 h-5 inline-block text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15l-2 5l9-5l-9-5l2 5zm0 0l-8-4l8-4l8 4l-8 4z" /></svg>,
+      BookOpen: () => <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>,
+      Heart: () => <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.684a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>,
+      Smile: () => <svg className="w-4 h-4 inline-block text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+      Send: () => <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>,
+      Users: () => <svg className="w-4 h-4 inline-block text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
+      CheckCircle2: () => <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+      Lightbulb: () => <svg className="w-4 h-4 inline-block text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>,
+      GraduationCap: () => <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg>,
+      Settings: () => <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+      Key: () => <svg className="w-4 h-4 inline-block text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
+    };
 
-    const INITIAL_STUDENTS = [
-      { id: '1', name: '1. 児童1', avatar: '🌱', parentPass: '1234' },
-      { id: '2', name: '2. 児童2', avatar: '🌱', parentPass: '1234' },
-      { id: '3', name: '3. 児童3', avatar: '🌱', parentPass: '1234' },
-      { id: '4', name: '4. 児童4', avatar: '🌱', parentPass: '1234' },
-      { id: '5', name: '5. 児童5', avatar: '🌱', parentPass: '1234' },
-      { id: '6', name: '6. 児童6', avatar: '🌱', parentPass: '1234' },
-      { id: '7', name: '7. 児童7', avatar: '🌱', parentPass: '1234' },
-      { id: '8', name: '8. 児童8', avatar: '🌱', parentPass: '1234' },
-      { id: '9', name: '9. 児童9', avatar: '🌱', parentPass: '1234' },
-      { id: '10', name: '10. 児童10', avatar: '🌱', parentPass: '1234' },
-      { id: '11', name: '11. 児童11', avatar: '🌱', parentPass: '1234' },
-      { id: '12', name: '12. 児童12', avatar: '🌱', parentPass: '1234' },
-      { id: '13', name: '13. 児童13', avatar: '🌱', parentPass: '1234' },
-      { id: '14', name: '14. 児童14', avatar: '🌱', parentPass: '1234' },
-      { id: '15', name: '15. 児童15', avatar: '🌱', parentPass: '1234' },
-      { id: '16', name: '16. 児童16', avatar: '🌱', parentPass: '1234' },
-    ];
+    // 16名分 初期データ
+    const DEFAULT_STUDENTS = Array.from({ length: 16 }, (_, i) => ({
+      id: String(i + 1),
+      name: `${i + 1}番 児童`,
+      avatar: '🌱',
+      parentPass: '1234'
+    }));
 
     const PLANT_STAGES = [
       { threshold: 0, name: 'たね・めばえ', icon: '🌱', desc: '挑戦の芽が出たよ！' },
@@ -49,48 +53,35 @@
       { threshold: 10, name: 'おおはな', icon: '🌸', desc: 'すばらしい花が咲いたよ！' }
     ];
 
-    const INITIAL_RECORDS = {
-      '1': {
-        1: { kanjiTarget: 5, mathTarget: 4, strategy: '毎日寝る前に5分漢字ノートを見た！', kanjiResult: 6, mathResult: 5, reflection: '漢字の目標を達成できた！算数もがんばった。', teacherComment: '自分で目標を決めて毎日続ける姿勢が素晴らしいですね！' },
-        2: { kanjiTarget: 6, mathTarget: 5, strategy: '間違えた問題をもう一回解き直す作戦！', kanjiResult: 7, mathResult: 6, reflection: '解き直し作戦が大成功した！', teacherComment: '作戦が見事に当たったね！素晴らしい工夫です。' },
-      },
-      '2': {
-        1: { kanjiTarget: 8, mathTarget: 8, strategy: '朝起きてすぐに計算ドリルを1ページやる！', kanjiResult: 8, mathResult: 7, reflection: '算数があと1問で悔しかったけど次は届きそう！', teacherComment: '朝の集中力を生かした工夫が最高です！' },
-      },
-      '3': {
-        1: { kanjiTarget: 3, mathTarget: 3, strategy: '声に出して読みながら漢字を書く！', kanjiResult: 4, mathResult: 3, reflection: '両方合格できてすごくうれしい！', teacherComment: '声に出す工夫、とても良いアイデアですね！' },
-      }
-    };
-
     function App() {
+      const [mode, setMode] = useState('student'); // 'student' | 'parent' | 'teacher'
+      const [teacherTab, setTeacherTab] = useState('dashboard'); // 'dashboard' | 'settings'
+      const [currentWeek, setCurrentWeek] = useState(1); // 初期表示は第1回
+      const [phase, setPhase] = useState('declaration'); // 'declaration' | 'result'
+      
+      // データ永続化 (localStorage)
       const [students, setStudents] = useState(() => {
         const saved = localStorage.getItem('growth_note_students');
-        return saved ? JSON.parse(saved) : INITIAL_STUDENTS;
+        return saved ? JSON.parse(saved) : DEFAULT_STUDENTS;
       });
 
       const [teacherPass, setTeacherPass] = useState(() => {
-        const saved = localStorage.getItem('growth_note_teacher_pass');
-        return saved || DEFAULT_TEACHER_PASS;
+        return localStorage.getItem('growth_note_teacher_pass') || '0000';
       });
-
-      const [mode, setMode] = useState('student');
-      const [teacherTab, setTeacherTab] = useState('dashboard'); // 'dashboard' | 'settings'
-      const [currentWeek, setCurrentWeek] = useState(3);
-      const [phase, setPhase] = useState('declaration');
-      const [selectedStudentId, setSelectedStudentId] = useState('1');
 
       const [records, setRecords] = useState(() => {
         const saved = localStorage.getItem('growth_note_records');
-        return saved ? JSON.parse(saved) : INITIAL_RECORDS;
+        return saved ? JSON.parse(saved) : {};
       });
 
+      const [selectedStudentId, setSelectedStudentId] = useState('1');
       const [parentPassInput, setParentPassInput] = useState('');
       const [isParentAuth, setIsParentAuth] = useState(false);
-      const [newParentPassInput, setNewParentPassInput] = useState('');
 
       const [teacherPassInput, setTeacherPassInput] = useState('');
       const [isTeacherAuth, setIsTeacherAuth] = useState(false);
 
+      // フォーム用ステート
       const [kanjiTarget, setKanjiTarget] = useState(5);
       const [mathTarget, setMathTarget] = useState(5);
       const [strategy, setStrategy] = useState('');
@@ -98,13 +89,12 @@
       const [mathResult, setMathResult] = useState(5);
       const [reflection, setReflection] = useState('');
 
-      // 設定管理用ステート
-      const [newTeacherPass, setNewTeacherPass] = useState('');
-      const [newStudentName, setNewStudentName] = useState('');
-      const [newStudentParentPass, setNewStudentParentPass] = useState('1234');
+      // 先生用コメント入力
+      const [teacherCommentInput, setTeacherCommentInput] = useState('');
       const [editingStudentId, setEditingStudentId] = useState(null);
-      const [editName, setEditName] = useState('');
-      const [editPass, setEditPass] = useState('');
+
+      // 設定管理用
+      const [newTeacherPass, setNewTeacherPass] = useState('');
 
       useEffect(() => {
         localStorage.setItem('growth_note_students', JSON.stringify(students));
@@ -121,7 +111,6 @@
       useEffect(() => {
         setIsParentAuth(false);
         setParentPassInput('');
-        setNewParentPassInput('');
         setIsTeacherAuth(false);
         setTeacherPassInput('');
       }, [selectedStudentId, mode]);
@@ -145,6 +134,23 @@
         }
       }, [selectedStudentId, currentWeek, records]);
 
+      const handleTeacherAuth = () => {
+        if (teacherPassInput === teacherPass) {
+          setIsTeacherAuth(true);
+        } else {
+          alert('パスワードが違います');
+        }
+      };
+
+      const handleParentAuth = () => {
+        const student = students.find(s => s.id === selectedStudentId);
+        if (student && parentPassInput === student.parentPass) {
+          setIsParentAuth(true);
+        } else {
+          alert('パスワードが違います');
+        }
+      };
+
       const getPassedCount = (studentId) => {
         const studentRecs = records[studentId] || {};
         let passed = 0;
@@ -158,119 +164,92 @@
       const getGrowthStage = (passedCount) => {
         let currentStage = PLANT_STAGES[0];
         for (let stage of PLANT_STAGES) {
-          if (passedCount >= stage.threshold) currentStage = stage;
+          if (passedCount >= stage.threshold) {
+            currentStage = stage;
+          }
         }
         return currentStage;
       };
 
       const handleSaveDeclaration = () => {
-        setRecords(prev => ({
-          ...prev,
-          [selectedStudentId]: {
-            ...prev[selectedStudentId],
-            [currentWeek]: {
-              ...prev[selectedStudentId]?.[currentWeek],
-              kanjiTarget, mathTarget, strategy
+        setRecords(prev => {
+          const studentRecs = prev[selectedStudentId] || {};
+          const weekRec = studentRecs[currentWeek] || {};
+          return {
+            ...prev,
+            [selectedStudentId]: {
+              ...studentRecs,
+              [currentWeek]: {
+                ...weekRec,
+                kanjiTarget,
+                mathTarget,
+                strategy
+              }
             }
-          }
-        }));
+          };
+        });
         alert('目標と作戦を記録しました！');
       };
 
       const handleSaveResult = () => {
-        setRecords(prev => ({
-          ...prev,
-          [selectedStudentId]: {
-            ...prev[selectedStudentId],
-            [currentWeek]: {
-              ...prev[selectedStudentId]?.[currentWeek],
-              kanjiResult, mathResult, reflection
+        setRecords(prev => {
+          const studentRecs = prev[selectedStudentId] || {};
+          const weekRec = studentRecs[currentWeek] || {};
+          return {
+            ...prev,
+            [selectedStudentId]: {
+              ...studentRecs,
+              [currentWeek]: {
+                ...weekRec,
+                kanjiResult,
+                mathResult,
+                reflection
+              }
             }
-          }
-        }));
+          };
+        });
         alert('結果と振り返りを保存しました！');
       };
 
-      // 先生パスワード変更
-      const handleChangeTeacherPass = () => {
+      const handleSaveTeacherComment = (studentId) => {
+        setRecords(prev => {
+          const studentRecs = prev[studentId] || {};
+          const weekRec = studentRecs[currentWeek] || {};
+          return {
+            ...prev,
+            [studentId]: {
+              ...studentRecs,
+              [currentWeek]: {
+                ...weekRec,
+                teacherComment: teacherCommentInput
+              }
+            }
+          };
+        });
+        setEditingStudentId(null);
+        setTeacherCommentInput('');
+      };
+
+      const handleUpdateStudentInfo = (id, newName, newPass) => {
+        setStudents(prev => prev.map(st => st.id === id ? { ...st, name: newName, parentPass: newPass } : st));
+      };
+
+      const handleUpdateTeacherPass = () => {
         if (!newTeacherPass.trim()) {
           alert('新しいパスワードを入力してください');
           return;
         }
         setTeacherPass(newTeacherPass.trim());
         setNewTeacherPass('');
-        alert('先生パスワードを変更しました！');
+        alert('先生用パスワードを変更しました');
       };
 
-      // 児童の新規追加
-      const handleAddStudent = () => {
-        if (!newStudentName.trim()) {
-          alert('児童名を入力してください');
-          return;
-        }
-        const newId = String(Date.now());
-        const newSt = {
-          id: newId,
-          name: newStudentName.trim(),
-          avatar: '🌱',
-          parentPass: newStudentParentPass.trim() || '1234'
-        };
-        setStudents(prev => [...prev, newSt]);
-        setNewStudentName('');
-        setNewStudentParentPass('1234');
-        alert(`${newSt.name} さんを追加しました！`);
-      };
-
-      // 児童の編集開始
-      const startEditStudent = (st) => {
-        setEditingStudentId(st.id);
-        setEditName(st.name);
-        setEditPass(st.parentPass);
-      };
-
-      // 児童の編集保存
-      const handleSaveEditStudent = (id) => {
-        if (!editName.trim()) {
-          alert('名前を入力してください');
-          return;
-        }
-        setStudents(prev => prev.map(st => 
-          st.id === id ? { ...st, name: editName.trim(), parentPass: editPass.trim() || '1234' } : st
-        ));
-        setEditingStudentId(null);
-        alert('児童情報・保護者PASSを更新しました！');
-      };
-
-      // 保護者自身による保護者PASS変更
-      const handleSelfChangeParentPass = () => {
-        if (!newParentPassInput.trim()) {
-          alert('新しい保護者用パスワードを入力してください');
-          return;
-        }
-        setStudents(prev => prev.map(st => 
-          st.id === selectedStudentId ? { ...st, parentPass: newParentPassInput.trim() } : st
-        ));
-        setNewParentPassInput('');
-        alert('保護者用パスワードを変更しました！');
-      };
-
-      // 児童の削除
-      const handleDeleteStudent = (id, name) => {
-        if (confirm(`${name} さんをリストから削除しますか？`)) {
-          setStudents(prev => prev.filter(st => st.id !== id));
-          if (selectedStudentId === id) {
-            const remaining = students.filter(st => st.id !== id);
-            if (remaining.length > 0) setSelectedStudentId(remaining[0].id);
-          }
-        }
-      };
-
-      const currentStudent = students.find(s => s.id === selectedStudentId) || students[0] || { id: '0', name: 'なし', avatar: '🌱', parentPass: '1234' };
+      const currentStudent = students.find(s => s.id === selectedStudentId) || students[0];
       const currentGrowth = getGrowthStage(getPassedCount(selectedStudentId));
 
       return (
-        <div className="min-h-screen bg-slate-50 text-slate-800 pb-12">
-          {}
+        <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-12">
+          {/* ヘッダー */}
           <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
             <div className="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
@@ -281,46 +260,63 @@
                 </div>
               </div>
 
+              {/* モード切り替え */}
               <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold">
                 <button
                   onClick={() => setMode('student')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${mode === 'student' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-600'}`}
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                    mode === 'student' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  }`}
                 >
-                  📖 じぶん（児童）
+                  <Icons.BookOpen />
+                  じぶん（児童）
                 </button>
                 <button
                   onClick={() => setMode('parent')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${mode === 'parent' ? 'bg-white text-amber-700 shadow-sm' : 'text-slate-600'}`}
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                    mode === 'parent' ? 'bg-white text-amber-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  }`}
                 >
-                  ❤️ おうちの方
+                  <Icons.Heart />
+                  おうちの方（保護者）
                 </button>
                 <button
                   onClick={() => setMode('teacher')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${mode === 'teacher' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-600'}`}
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
+                    mode === 'teacher' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  }`}
                 >
-                  👨‍🏫 せんせい
+                  <Icons.GraduationCap />
+                  せんせい
                 </button>
               </div>
             </div>
           </header>
 
           <main className="max-w-5xl mx-auto px-4 mt-6">
+            {/* 児童選択バー */}
             {mode !== 'teacher' && (
-              <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <span className="text-xs font-bold text-slate-500">児童を選択:</span>
+                  <span className="text-xs font-bold text-slate-500 whitespace-nowrap">児童を選択:</span>
                   <select
                     value={selectedStudentId}
                     onChange={(e) => setSelectedStudentId(e.target.value)}
-                    className="w-full sm:w-64 p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none"
+                    className="w-full sm:w-64 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer"
                   >
                     {students.map(st => (
-                      <option key={st.id} value={st.id}>{st.name} ({st.avatar})</option>
+                      <option key={st.id} value={st.id}>
+                        {st.id}. {st.avatar} {st.name}
+                      </option>
                     ))}
                   </select>
                 </div>
-                <div className="text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-lg">
-                  第 {currentWeek} 回
+
+                <div className="flex items-center gap-2 text-xs self-end sm:self-auto">
+                  <span className="text-slate-500">いまの回:</span>
+                  <span className="font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg">
+                    第 {currentWeek} 回
+                  </span>
                 </div>
               </div>
             )}
@@ -328,118 +324,183 @@
             {/* 児童画面 */}
             {mode === 'student' && (
               <div className="space-y-6">
-                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-6 text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-4xl">
-                      {currentGrowth.icon}
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-6 text-white shadow-md relative overflow-hidden">
+                  <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-5xl shadow-inner">
+                        {currentGrowth.icon}
+                      </div>
+                      <div>
+                        <div className="inline-block px-3 py-0.5 rounded-full bg-white/20 text-xs font-bold mb-1">
+                          {currentStudent.avatar} {currentStudent.name} さんの成長ステージ
+                        </div>
+                        <h2 className="text-2xl font-black">{currentGrowth.name}</h2>
+                        <p className="text-xs text-emerald-100 mt-1">{currentGrowth.desc}</p>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-bold">{currentStudent.name} さんの成長</span>
-                      <h2 className="text-2xl font-black">{currentGrowth.name}</h2>
-                      <p className="text-xs text-emerald-100 mt-0.5">{currentGrowth.desc}</p>
+
+                    <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl text-center min-w-[200px]">
+                      <p className="text-xs text-emerald-100 mb-1">これまでのクリア回数</p>
+                      <p className="text-3xl font-black">{getPassedCount(selectedStudentId)} <span className="text-sm font-normal">回</span></p>
                     </div>
-                  </div>
-                  <div className="bg-white/10 p-3 rounded-2xl text-center min-w-[140px]">
-                    <p className="text-[10px] text-emerald-100">クリア回数</p>
-                    <p className="text-2xl font-black">{getPassedCount(selectedStudentId)} 回</p>
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                {/* フェーズ切替 */}
+                <div className="flex gap-3">
                   <button
                     onClick={() => setPhase('declaration')}
-                    className={`flex-1 py-3 rounded-2xl font-bold text-xs ${phase === 'declaration' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-slate-600 border'}`}
+                    className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${
+                      phase === 'declaration' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'
+                    }`}
                   >
-                    💡 1. 目標と作戦をたてる
+                    <Icons.Lightbulb />
+                    1. 今週の目標と作戦をたてる
                   </button>
                   <button
                     onClick={() => setPhase('result')}
-                    className={`flex-1 py-3 rounded-2xl font-bold text-xs ${phase === 'result' ? 'bg-teal-600 text-white shadow-md' : 'bg-white text-slate-600 border'}`}
+                    className={`flex-1 py-3 px-4 rounded-2xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${
+                      phase === 'result' ? 'bg-teal-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'
+                    }`}
                   >
-                    🏆 2. 結果と振り返り
+                    <Icons.Award />
+                    2. 結果と振り返りを記録する
                   </button>
                 </div>
 
+                {/* フェーズ1 */}
                 {phase === 'declaration' && (
                   <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-6">
-                    <h3 className="font-bold text-slate-800 text-sm border-b pb-2">第 {currentWeek} 回 小テストの合格目標（自分で設定）</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-emerald-50 p-4 rounded-2xl space-y-2">
-                        <div className="flex justify-between text-xs font-bold">
-                          <span>📝 漢字（10問中）</span>
-                          <span className="text-emerald-700">{kanjiTarget} 問合格</span>
+                    <div>
+                      <h3 className="font-bold text-slate-800 flex items-center gap-2 text-base border-b pb-3 mb-4">
+                        <Icons.Lightbulb />
+                        第 {currentWeek} 回 小テストの合格目標（自分で決める！）
+                      </h3>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-slate-700 text-xs">📝 漢字小テスト（10問中）</span>
+                            <span className="text-lg font-black text-emerald-700">{kanjiTarget} 問合格</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            value={kanjiTarget}
+                            onChange={(e) => setKanjiTarget(Number(e.target.value))}
+                            className="w-full accent-emerald-600"
+                          />
                         </div>
-                        <input type="range" min="1" max="10" value={kanjiTarget} onChange={e => setKanjiTarget(Number(e.target.value))} className="w-full accent-emerald-600" />
-                      </div>
-                      <div className="bg-teal-50 p-4 rounded-2xl space-y-2">
-                        <div className="flex justify-between text-xs font-bold">
-                          <span>🔢 算数（10問中）</span>
-                          <span className="text-teal-700">{mathTarget} 問合格</span>
+
+                        <div className="bg-teal-50/60 p-4 rounded-2xl border border-teal-100 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-slate-700 text-xs">🔢 算数小テスト（10問中）</span>
+                            <span className="text-lg font-black text-teal-700">{mathTarget} 問合格</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            value={mathTarget}
+                            onChange={(e) => setMathTarget(Number(e.target.value))}
+                            className="w-full accent-teal-600"
+                          />
                         </div>
-                        <input type="range" min="1" max="10" value={mathTarget} onChange={e => setMathTarget(Number(e.target.value))} className="w-full accent-teal-600" />
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="font-bold text-xs text-slate-700">✨ 合格するためのじぶん作戦・工夫</label>
+                    <div className="space-y-2">
+                      <label className="font-bold text-xs text-slate-700 block flex items-center gap-1.5">
+                        <Icons.Sparkles />
+                        合格するためのじぶん作戦・工夫
+                      </label>
                       <textarea
                         value={strategy}
-                        onChange={e => setStrategy(e.target.value)}
-                        placeholder="例：朝10分だけやる！間違えた漢字は3回書く！"
-                        className="w-full p-3 border border-slate-200 rounded-2xl text-xs h-20 outline-none focus:ring-2 focus:ring-emerald-500"
+                        onChange={(e) => setStrategy(e.target.value)}
+                        placeholder="例：朝起きてすぐ10分だけやる！間違えた漢字は３回書く！など"
+                        className="w-full p-3 border border-slate-200 rounded-2xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none h-24"
                       />
                     </div>
 
-                    <button onClick={handleSaveDeclaration} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl text-xs shadow-md">
+                    <button
+                      onClick={handleSaveDeclaration}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-md flex items-center justify-center gap-2"
+                    >
+                      <Icons.Send />
                       作戦を決定してがんばる！
                     </button>
                   </div>
                 )}
 
+                {/* フェーズ2 */}
                 {phase === 'result' && (
                   <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-6">
-                    <h3 className="font-bold text-slate-800 text-sm border-b pb-2">第 {currentWeek} 回 テスト結果の記録</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-slate-50 p-4 rounded-2xl border space-y-2">
-                        <span className="text-xs font-bold">📝 漢字の結果 (目標: {kanjiTarget}問)</span>
-                        <div className="flex items-center gap-2">
-                          <input type="number" min="0" max="10" value={kanjiResult} onChange={e => setKanjiResult(Number(e.target.value))} className="w-16 p-2 border rounded-xl text-center font-bold text-base" />
-                          <span className="text-xs font-bold">問正解</span>
+                    <div>
+                      <h3 className="font-bold text-slate-800 flex items-center gap-2 text-base border-b pb-3 mb-4">
+                        <Icons.Award />
+                        第 {currentWeek} 回 テスト結果の記録
+                      </h3>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-slate-700 text-xs">📝 漢字の結果</span>
+                            <span className="text-xs text-slate-500">目標: {kanjiTarget}問</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="number"
+                              min="0"
+                              max="10"
+                              value={kanjiResult}
+                              onChange={(e) => setKanjiResult(Number(e.target.value))}
+                              className="w-20 p-2 text-center border border-slate-300 rounded-xl font-bold text-lg outline-none"
+                            />
+                            <span className="text-xs font-bold text-slate-600">問せいかい！</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="bg-slate-50 p-4 rounded-2xl border space-y-2">
-                        <span className="text-xs font-bold">🔢 算数の結果 (目標: {mathTarget}問)</span>
-                        <div className="flex items-center gap-2">
-                          <input type="number" min="0" max="10" value={mathResult} onChange={e => setMathResult(Number(e.target.value))} className="w-16 p-2 border rounded-xl text-center font-bold text-base" />
-                          <span className="text-xs font-bold">問正解</span>
+
+                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-slate-700 text-xs">🔢 算数の結果</span>
+                            <span className="text-xs text-slate-500">目標: {mathTarget}問</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="number"
+                              min="0"
+                              max="10"
+                              value={mathResult}
+                              onChange={(e) => setMathResult(Number(e.target.value))}
+                              className="w-20 p-2 text-center border border-slate-300 rounded-xl font-bold text-lg outline-none"
+                            />
+                            <span className="text-xs font-bold text-slate-600">問せいかい！</span>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="font-bold text-xs text-slate-700">😊 今回の振り返り</label>
+                    <div className="space-y-2">
+                      <label className="font-bold text-xs text-slate-700 block flex items-center gap-1.5">
+                        <Icons.Smile />
+                        今回の振り返り
+                      </label>
                       <textarea
                         value={reflection}
-                        onChange={e => setReflection(e.target.value)}
-                        placeholder="作戦通りに勉強できた！次は目標を上げてみよう！"
-                        className="w-full p-3 border border-slate-200 rounded-2xl text-xs h-20 outline-none focus:ring-2 focus:ring-teal-500"
+                        onChange={(e) => setReflection(e.target.value)}
+                        placeholder="作戦通りに勉強できた！ / 次はやり方を変えてみよう！"
+                        className="w-full p-3 border border-slate-200 rounded-2xl text-xs focus:ring-2 focus:ring-teal-500 outline-none h-24"
                       />
                     </div>
 
-                    <button onClick={handleSaveResult} className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-2xl text-xs shadow-md">
+                    <button
+                      onClick={handleSaveResult}
+                      className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-md flex items-center justify-center gap-2"
+                    >
+                      <Icons.CheckCircle2 />
                       結果を記録する
                     </button>
-                  </div>
-                )}
-
-                {/* 先生コメント */}
-                {records[selectedStudentId]?.[currentWeek]?.teacherComment && (
-                  <div className="bg-amber-50 rounded-3xl p-4 border border-amber-200 flex items-start gap-3">
-                    <span className="text-2xl">👨‍🏫</span>
-                    <div>
-                      <h4 className="font-bold text-xs text-amber-900">せんせいからのメッセージ</h4>
-                      <p className="text-xs text-amber-800 mt-1">{records[selectedStudentId][currentWeek].teacherComment}</p>
-                    </div>
                   </div>
                 )}
               </div>
@@ -449,164 +510,159 @@
             {mode === 'parent' && (
               <div className="space-y-6">
                 {!isParentAuth ? (
-                  <div className="max-w-md mx-auto bg-white p-6 rounded-3xl shadow-sm border space-y-4 my-8">
-                    <h3 className="font-bold text-slate-800 text-center">{currentStudent.name} さんの保護者確認</h3>
-                    <input
-                      type="password"
-                      value={parentPassInput}
-                      onChange={e => setParentPassInput(e.target.value)}
-                      placeholder={`パスワードを入力`}
-                      className="w-full p-3 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-500"
-                    />
+                  <div className="max-w-md mx-auto bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4 my-8">
+                    <div className="flex items-center gap-3 border-b pb-3">
+                      <div className="p-2 bg-amber-100 text-amber-700 rounded-2xl">
+                        <Icons.Lock />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-800">{currentStudent.name} さんの保護者確認画面</h3>
+                        <p className="text-xs text-slate-500">保護者パスワードを入力してください</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">保護者パスワード</label>
+                      <input
+                        type="password"
+                        value={parentPassInput}
+                        onChange={(e) => setParentPassInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleParentAuth()}
+                        placeholder="パスワードを入力"
+                        className="w-full p-3 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+
                     <button
-                      onClick={() => parentPassInput === currentStudent.parentPass ? setIsParentAuth(true) : alert('パスワードが違います')}
-                      className="w-full bg-amber-600 text-white font-bold py-3 rounded-xl text-xs"
+                      onClick={handleParentAuth}
+                      className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-2"
                     >
                       確認画面に入る
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-6">
-                    <div className="bg-white rounded-3xl p-6 shadow-sm border space-y-4">
-                      <h2 className="font-bold text-base border-b pb-2">{currentStudent.name} さんの成長記録</h2>
-                      <p className="text-xs text-slate-600">現在ステージ: <strong>{currentGrowth.icon} {currentGrowth.name}</strong></p>
-                      <div className="space-y-2">
-                        {[1, 2, 3].map(w => {
-                          const rec = records[selectedStudentId]?.[w];
-                          if (!rec) return null;
-                          return (
-                            <div key={w} className="p-3 bg-slate-50 rounded-2xl border text-xs space-y-1">
-                              <span className="font-bold text-emerald-700">第 {w} 回</span>
-                              <p>漢字: 目標{rec.kanjiTarget}問 ➔ 結果{rec.kanjiResult ?? '未'}問</p>
-                              <p>算数: 目標{rec.mathTarget}問 ➔ 結果{rec.mathResult ?? '未'}問</p>
-                              {rec.strategy && <p className="text-slate-500">作戦: {rec.strategy}</p>}
-                            </div>
-                          );
-                        })}
+                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-6">
+                    <div className="flex items-center justify-between border-b pb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">{currentStudent.avatar}</span>
+                        <div>
+                          <h2 className="font-bold text-lg text-slate-800">{currentStudent.name} さんの学習記録</h2>
+                        </div>
                       </div>
                     </div>
 
-                    {/* オンライン保護者PASS変更エリア */}
-                    <div className="bg-white rounded-3xl p-6 shadow-sm border border-amber-100 space-y-3">
-                      <h3 className="font-bold text-xs text-amber-900 border-b pb-2">🔑 保護者用パスワードの変更</h3>
-                      <p className="text-[11px] text-slate-500">ご家庭用に任意のパスワードへ変更できます。</p>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={newParentPassInput}
-                          onChange={e => setNewParentPassInput(e.target.value)}
-                          placeholder="新しいパスワードを入力"
-                          className="p-2.5 border border-slate-200 rounded-xl text-xs flex-1 outline-none focus:ring-2 focus:ring-amber-500"
-                        />
-                        <button
-                          onClick={handleSelfChangeParentPass}
-                          className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs transition-all"
-                        >
-                          変更保存
-                        </button>
-                      </div>
+                    <div className="space-y-4">
+                      <h3 className="font-bold text-xs text-slate-700">これまでの取り組み</h3>
+                      {[1, 2, 3].map(w => {
+                        const rec = records[selectedStudentId]?.[w];
+                        if (!rec) return null;
+                        return (
+                          <div key={w} className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-3 text-xs">
+                            <span className="font-bold text-emerald-700 block">第 {w} 回</span>
+                            <div>漢字: 目標 {rec.kanjiTarget}問 ➔ 結果 {rec.kanjiResult ?? '未'}問</div>
+                            <div>算数: 目標 {rec.mathTarget}問 ➔ 結果 {rec.mathResult ?? '未'}問</div>
+                            {rec.strategy && <div className="text-slate-600">作戦: {rec.strategy}</div>}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {}
             {/* 先生画面 */}
             {mode === 'teacher' && (
               <div className="space-y-6">
                 {!isTeacherAuth ? (
-                  <div className="max-w-md mx-auto bg-white p-6 rounded-3xl shadow-sm border space-y-4 my-8">
-                    <h3 className="font-bold text-slate-800 text-center">先生用画面 ログイン</h3>
-                    <input
-                      type="password"
-                      value={teacherPassInput}
-                      onChange={e => setTeacherPassInput(e.target.value)}
-                      placeholder="先生用パスワードを入力"
-                      className="w-full p-3 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
+                  <div className="max-w-md mx-auto bg-white p-6 rounded-3xl shadow-sm border border-emerald-100 space-y-4 my-8">
+                    <div className="flex items-center gap-3 border-b pb-3">
+                      <div className="p-2 bg-emerald-100 text-emerald-700 rounded-2xl">
+                        <Icons.Lock />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-800">先生用画面 ログイン</h3>
+                        <p className="text-xs text-slate-500">パスワードを入力してください</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">先生パスワード</label>
+                      <input
+                        type="password"
+                        value={teacherPassInput}
+                        onChange={(e) => setTeacherPassInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleTeacherAuth()}
+                        placeholder="パスワードを入力"
+                        className="w-full p-3 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+
                     <button
-                      onClick={() => teacherPassInput === teacherPass ? setIsTeacherAuth(true) : alert('パスワードが違います')}
-                      className="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl text-xs"
+                      onClick={handleTeacherAuth}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-2"
                     >
-                      ログイン
+                      <Icons.UserCheck />
+                      先生用画面に入る
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {/* 先生画面サブタブ */}
-                    <div className="flex gap-2 border-b pb-2">
+                  <div className="space-y-6">
+                    {/* タブ切り替え */}
+                    <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 text-xs font-bold gap-2">
                       <button
                         onClick={() => setTeacherTab('dashboard')}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                          teacherTab === 'dashboard' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 border'
+                        className={`flex-1 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 ${
+                          teacherTab === 'dashboard' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'
                         }`}
                       >
-                        📊 学習ダッシュボード
+                        <Icons.UserCheck />
+                        ダッシュボード（学習状況）
                       </button>
                       <button
                         onClick={() => setTeacherTab('settings')}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                          teacherTab === 'settings' ? 'bg-teal-600 text-white' : 'bg-white text-slate-600 border'
+                        className={`flex-1 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 ${
+                          teacherTab === 'settings' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-50'
                         }`}
                       >
-                        ⚙️ 児童・パスワード設定
+                        <Icons.Settings />
+                        ⚙️ 児童名簿・パスワード設定
                       </button>
                     </div>
 
-                    {/* ダッシュボードタブ */}
+                    {/* ダッシュボード */}
                     {teacherTab === 'dashboard' && (
-                      <div className="bg-white p-6 rounded-3xl shadow-sm border space-y-4">
-                        <div className="flex justify-between items-center border-b pb-3">
-                          <h2 className="font-bold text-base">学級全児童の学習ダッシュボード</h2>
+                      <div className="bg-white p-6 rounded-3xl shadow-sm border border-emerald-100 space-y-6">
+                        <div className="flex items-center justify-between border-b pb-4">
+                          <h2 className="font-bold text-lg text-slate-800">学級全児童の学習状況</h2>
                           <div className="flex items-center gap-2 text-xs">
-                            <button onClick={() => setCurrentWeek(Math.max(1, currentWeek - 1))} className="px-2 py-1 bg-slate-100 rounded">◀ 前</button>
-                            <span className="font-bold">第 {currentWeek} 回</span>
-                            <button onClick={() => setCurrentWeek(currentWeek + 1)} className="px-2 py-1 bg-slate-100 rounded">次 ▶</button>
+                            <button onClick={() => setCurrentWeek(Math.max(1, currentWeek - 1))} className="px-2 py-1 bg-slate-100 rounded font-bold">◀ 前</button>
+                            <span className="font-bold text-emerald-800">第 {currentWeek} 回</span>
+                            <button onClick={() => setCurrentWeek(currentWeek + 1)} className="px-2 py-1 bg-slate-100 rounded font-bold">次 ▶</button>
                           </div>
                         </div>
 
                         <div className="overflow-x-auto">
-                          <table className="w-full text-left text-xs">
+                          <table className="w-full text-left text-xs border-collapse">
                             <thead>
                               <tr className="bg-slate-100 text-slate-700 font-bold">
-                                <th className="p-2">名前</th>
-                                <th className="p-2">漢字</th>
-                                <th className="p-2">算数</th>
-                                <th className="p-2">作戦</th>
-                                <th className="p-2">振り返り</th>
-                                <th className="p-2 text-center">コメント</th>
+                                <th className="p-3 rounded-l-xl">児童名</th>
+                                <th className="p-3">漢字 (目標➔結果)</th>
+                                <th className="p-3">算数 (目標➔結果)</th>
+                                <th className="p-3">作戦・工夫</th>
+                                <th className="p-3">振り返り</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                               {students.map(st => {
                                 const rec = records[st.id]?.[currentWeek] || {};
                                 return (
-                                  <tr key={st.id}>
-                                    <td className="p-2 font-bold">{st.name}</td>
-                                    <td className="p-2">{rec.kanjiTarget ? `${rec.kanjiTarget} ➔ ${rec.kanjiResult ?? '未'}` : '-'}</td>
-                                    <td className="p-2">{rec.mathTarget ? `${rec.mathTarget} ➔ ${rec.mathResult ?? '未'}` : '-'}</td>
-                                    <td className="p-2 max-w-[150px] truncate">{rec.strategy || '-'}</td>
-                                    <td className="p-2 max-w-[150px] truncate">{rec.reflection || '-'}</td>
-                                    <td className="p-2 text-center">
-                                      <button
-                                        onClick={() => {
-                                          const msg = prompt(`${st.name} さんへのメッセージ:`, rec.teacherComment || '');
-                                          if (msg !== null) {
-                                            setRecords(prev => ({
-                                              ...prev,
-                                              [st.id]: {
-                                                ...prev[st.id],
-                                                [currentWeek]: { ...prev[st.id]?.[currentWeek], teacherComment: msg }
-                                              }
-                                            }));
-                                          }
-                                        }}
-                                        className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded border text-[10px] font-bold"
-                                      >
-                                        {rec.teacherComment ? '📝 編集' : '➕ 追加'}
-                                      </button>
-                                    </td>
+                                  <tr key={st.id} className="hover:bg-slate-50">
+                                    <td className="p-3 font-bold">{st.name}</td>
+                                    <td className="p-3">{rec.kanjiTarget ? `${rec.kanjiTarget}問 ➔ ${rec.kanjiResult ?? '未'}問` : '未設定'}</td>
+                                    <td className="p-3">{rec.mathTarget ? `${rec.mathTarget}問 ➔ ${rec.mathResult ?? '未'}問` : '未設定'}</td>
+                                    <td className="p-3 text-slate-600">{rec.strategy || '未入力'}</td>
+                                    <td className="p-3 text-slate-600">{rec.reflection || '未入力'}</td>
                                   </tr>
                                 );
                               })}
@@ -616,132 +672,65 @@
                       </div>
                     )}
 
-                    {/* 設定タブ（パスワード・児童名編集） */}
+                    {/* オンライン設定管理 */}
                     {teacherTab === 'settings' && (
                       <div className="space-y-6">
                         {/* 先生パスワード変更 */}
-                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-3">
-                          <h3 className="font-bold text-sm border-b pb-2 text-slate-800">🔑 先生用パスワードの変更</h3>
-                          <div className="flex gap-2 items-center max-w-md">
+                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
+                          <h3 className="font-bold text-sm text-slate-800 flex items-center gap-2">
+                            <Icons.Key />
+                            先生用パスワードの変更
+                          </h3>
+                          <div className="flex gap-3 max-w-md">
                             <input
                               type="password"
                               value={newTeacherPass}
-                              onChange={e => setNewTeacherPass(e.target.value)}
-                              placeholder="新しい先生用パスワードを入力"
-                              className="p-2.5 border rounded-xl text-xs flex-1 outline-none focus:ring-2 focus:ring-teal-500"
+                              onChange={(e) => setNewTeacherPass(e.target.value)}
+                              placeholder="新しいパスワードを入力"
+                              className="flex-1 p-2.5 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500"
                             />
                             <button
-                              onClick={handleChangeTeacherPass}
-                              className="px-4 py-2.5 bg-teal-600 text-white font-bold rounded-xl text-xs hover:bg-teal-700"
+                              onClick={handleUpdateTeacherPass}
+                              className="px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700"
                             >
                               変更保存
                             </button>
                           </div>
                         </div>
 
-                        {/* 新規児童追加 */}
-                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-3">
-                          <h3 className="font-bold text-sm border-b pb-2 text-slate-800">➕ 新しい児童の追加</h3>
-                          <div className="flex flex-wrap gap-2 items-center">
-                            <input
-                              type="text"
-                              value={newStudentName}
-                              onChange={e => setNewStudentName(e.target.value)}
-                              placeholder="児童のお名前（例: たろう）"
-                              className="p-2.5 border rounded-xl text-xs flex-1 min-w-[150px] outline-none focus:ring-2 focus:ring-emerald-500"
-                            />
-                            <input
-                              type="text"
-                              value={newStudentParentPass}
-                              onChange={e => setNewStudentParentPass(e.target.value)}
-                              placeholder="保護者パスワード (例: 1234)"
-                              className="p-2.5 border rounded-xl text-xs w-36 outline-none focus:ring-2 focus:ring-emerald-500"
-                            />
-                            <button
-                              onClick={handleAddStudent}
-                              className="px-4 py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs hover:bg-emerald-700"
-                            >
-                              追加する
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* 児童名簿・保護者パスワード編集・削除 */}
+                        {/* 児童名簿・保護者PASS設定（16名） */}
                         <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
-                          <h3 className="font-bold text-sm border-b pb-2 text-slate-800">📝 児童名簿・保護者パスワードの編集</h3>
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-left text-xs">
-                              <thead>
-                                <tr className="bg-slate-100 font-bold text-slate-700">
-                                  <th className="p-2.5">児童名</th>
-                                  <th className="p-2.5">保護者用パスワード</th>
-                                  <th className="p-2.5 text-center">操作</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-slate-100">
-                                {students.map(st => (
-                                  <tr key={st.id} className="hover:bg-slate-50">
-                                    <td className="p-2.5 font-bold">
-                                      {editingStudentId === st.id ? (
-                                        <input
-                                          type="text"
-                                          value={editName}
-                                          onChange={e => setEditName(e.target.value)}
-                                          className="p-1 border rounded text-xs w-32"
-                                        />
-                                      ) : (
-                                        <span>{st.name}</span>
-                                      )}
-                                    </td>
-                                    <td className="p-2.5">
-                                      {editingStudentId === st.id ? (
-                                        <input
-                                          type="text"
-                                          value={editPass}
-                                          onChange={e => setEditPass(e.target.value)}
-                                          className="p-1 border rounded text-xs w-28"
-                                        />
-                                      ) : (
-                                        <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-700">{st.parentPass}</span>
-                                      )}
-                                    </td>
-                                    <td className="p-2.5 text-center">
-                                      {editingStudentId === st.id ? (
-                                        <div className="flex justify-center gap-1">
-                                          <button
-                                            onClick={() => handleSaveEditStudent(st.id)}
-                                            className="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold"
-                                          >
-                                            保存
-                                          </button>
-                                          <button
-                                            onClick={() => setEditingStudentId(null)}
-                                            className="px-2 py-1 bg-slate-200 text-slate-700 rounded text-[10px]"
-                                          >
-                                            キャンセル
-                                          </button>
-                                        </div>
-                                      ) : (
-                                        <div className="flex justify-center gap-1">
-                                          <button
-                                            onClick={() => startEditStudent(st)}
-                                            className="px-2 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded text-[10px] font-bold hover:bg-amber-100"
-                                          >
-                                            編集
-                                          </button>
-                                          <button
-                                            onClick={() => handleDeleteStudent(st.id, st.name)}
-                                            className="px-2 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded text-[10px] font-bold hover:bg-rose-100"
-                                          >
-                                            削除
-                                          </button>
-                                        </div>
-                                      )}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                          <h3 className="font-bold text-sm text-slate-800 flex items-center gap-2">
+                            <Icons.Users />
+                            児童名簿・保護者パスワードの変更（全16名）
+                          </h3>
+                          <p className="text-xs text-slate-500">ここで名前を変更すると、画面上の児童リストへ即座に反映されます。</p>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {students.map(st => (
+                              <div key={st.id} className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-slate-500 min-w-[28px]">{st.id}番</span>
+                                  <input
+                                    type="text"
+                                    value={st.name}
+                                    onChange={(e) => handleUpdateStudentInfo(st.id, e.target.value, st.parentPass)}
+                                    placeholder="児童名を入力"
+                                    className="flex-1 p-2 border border-slate-300 rounded-lg text-xs font-bold outline-none focus:ring-1 focus:ring-emerald-500"
+                                  />
+                                </div>
+                                <div className="flex items-center gap-2 pl-9">
+                                  <span className="text-[10px] font-bold text-slate-500">保護者PASS:</span>
+                                  <input
+                                    type="text"
+                                    value={st.parentPass}
+                                    onChange={(e) => handleUpdateStudentInfo(st.id, st.name, e.target.value)}
+                                    placeholder="保護者PASS"
+                                    className="w-32 p-1.5 border border-slate-300 rounded-lg text-xs outline-none focus:ring-1 focus:ring-emerald-500"
+                                  />
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
